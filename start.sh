@@ -6,11 +6,11 @@ set -e
 
 cd "$(dirname "$0")"
 
-echo "📦 Installing dependencies..."
+echo "Installing dependencies..."
 pip install -r requirements.txt --break-system-packages -q
 
 echo ""
-echo "🌤  Starting Nimbus Weather App..."
+echo "   Starting Nimbus Weather App..."
 echo "    Local:  http://localhost:8000"
 echo "    Quit:   Ctrl+C"
 echo ""
