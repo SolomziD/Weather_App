@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Beautiful weather app powered by Open-Meteo" />
+  <title>Nimbus — Weather</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- ─── BACKGROUND LAYER ─────────────────────────── -->
+  <div class="bg-layer" id="bgLayer" aria-hidden="true">
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="bg-orb orb-3"></div>
+  </div>
+
+  <div class="app-shell">
+
+    <!-- ─── HEADER ────────────────────────────────────── -->
+    <header class="app-header">
+      <div class="logo">
+        <span class="logo-icon">🌤</span>
+        <span class="logo-text">Nimbus</span>
+      </div>
+
+      <div class="header-controls">
+        <!-- Unit Toggle -->
+        <div class="unit-toggle" role="group" aria-label="Temperature units">
+          <button class="unit-btn active" id="btnCelsius" data-unit="celsius" aria-pressed="true">°C</button>
+          <button class="unit-btn" id="btnFahrenheit" data-unit="fahrenheit" aria-pressed="false">°F</button>
+        </div>
+
+        <!-- Location button -->
+        <button class="icon-btn" id="btnGeolocate" title="Use my location" aria-label="Use my location">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="9" opacity=".2"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- ─── SEARCH ─────────────────────────────────────── -->
+    <section class="search-section" aria-label="City search">
+      <div class="search-wrapper">
+        <label for="searchInput" class="sr-only">Search city</label>
+        <input
+          type="search"
+          id="searchInput"
+          class="search-input"
+          placeholder="Search city or place…"
+          autocomplete="off"
+          spellcheck="false"
+          aria-autocomplete="list"
+          aria-controls="suggestionsList"
+          aria-expanded="false"
+        />
+        <button class="search-btn" id="searchBtn" aria-label="Search">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        </button>
+        <ul class="suggestions-list" id="suggestionsList" role="listbox" aria-label="City suggestions" hidden></ul>
+      </div>
+    </section>
+
+    <!-- ─── MAIN CONTENT ──────────────────────────────── -->
+    <main class="main-content" id="mainContent">
+
+      <!-- Empty state -->
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon">🌍</div>
+        <h2>Where are you?</h2>
+        <p>Search for a city or allow location access to see live weather.</p>
+        <button class="cta-btn" id="ctaGeolocate">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+          Use my location
+        </button>
+      </div>
+
+      <!-- Loading state -->
+      <div class="loading-state hidden" id="loadingState" aria-live="polite" aria-busy="true">
+        <div class="spinner"></div>
+        <p>Fetching weather data…</p>
+      </div>
+
+      <!-- Error state -->
+      <div class="error-state hidden" id="errorState" role="alert" aria-live="assertive">
+        <div class="error-icon">⚠️</div>
+        <p id="errorMsg">Something went wrong.</p>
+        <button class="cta-btn" id="retryBtn">Try Again</button>
+      </div>
+
+      <!-- ─── WEATHER DASHBOARD ──────────────────────── -->
+      <div class="weather-dashboard hidden" id="weatherDashboard">
+
+        <!-- Current weather card -->
+        <section class="current-card" aria-label="Current weather">
+          <div class="current-top">
+            <div class="location-info">
+              <h1 class="city-name" id="cityName">—</h1>
+              <p class="location-sub" id="locationSub">—</p>
+              <p class="last-updated" id="lastUpdated">—</p>
+            </div>
+            <div class="current-icon-wrap">
+              <div class="weather-icon-lg" id="currentIcon" aria-hidden="true">—</div>
+              <p class="weather-desc" id="currentDesc">—</p>
+            </div>
+          </div>
+
+          <div class="temp-display">
+            <span class="temp-main" id="currentTemp">—</span>
+            <div class="temp-feels">
+              <span>Feels like </span><span id="feelsLike">—</span>
+            </div>
+          </div>
+
+          <!-- Stats row -->
+          <div class="stats-grid">
+            <div class="stat-item">
+              <span class="stat-icon">💧</span>
+              <span class="stat-label">Humidity</span>
+              <span class="stat-value" id="humidity">—</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-icon">💨</span>
+              <span class="stat-label">Wind</span>
+              <span class="stat-value" id="wind">—</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-icon">🌡</span>
+              <span class="stat-label">Pressure</span>
+              <span class="stat-value" id="pressure">—</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-icon">☀️</span>
+              <span class="stat-label">UV Index</span>
+              <span class="stat-value" id="uvIndex">—</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-icon">🌅</span>
+              <span class="stat-label">Sunrise</span>
+              <span class="stat-value" id="sunrise">—</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-icon">🌇</span>
+              <span class="stat-label">Sunset</span>
+              <span class="stat-value" id="sunset">—</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Hourly forecast -->
+        <section class="hourly-section" aria-label="Hourly forecast">
+          <h2 class="section-title">Hourly</h2>
+          <div class="hourly-scroll" id="hourlyScroll" role="list"></div>
+        </section>
+
+        <!-- 7-day forecast -->
+        <section class="daily-section" aria-label="7-day forecast">
+          <h2 class="section-title">7-Day Forecast</h2>
+          <div class="daily-list" id="dailyList" role="list"></div>
+        </section>
+
+      </div>
+      <!-- /weather-dashboard -->
+
+    </main>
+
+    <footer class="app-footer">
+      <p>Data by <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a> · Free &amp; open source</p>
+    </footer>
+
+  </div>
+  <!-- /app-shell -->
+
+  <script src="/static/js/weather.js" type="module"></script>
+</body>
+</html>
